@@ -50,9 +50,8 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
             return
             
         }
-        
+         searchbar.delegate = self
         self.tableView.reloadData()
-        searchbar.delegate = self
     }
 
     override func didReceiveMemoryWarning() {
@@ -140,6 +139,7 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
             itemController.item = item
         }
     }
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
     }
