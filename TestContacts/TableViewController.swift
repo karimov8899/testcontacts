@@ -9,12 +9,14 @@
 import UIKit
 import CoreData
 
-class TableViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class TableViewController: UITableViewController, NSFetchedResultsControllerDelegate, UISearchBarDelegate {
     
     var frc : NSFetchedResultsController = NSFetchedResultsController<NSFetchRequestResult>()
     
     var pc = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
+   
+    @IBOutlet weak var searchbar: UISearchBar!
     
     func fetchRequest() -> NSFetchRequest<NSFetchRequestResult> {
         
@@ -50,6 +52,7 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
         }
         
         self.tableView.reloadData()
+        searchbar.delegate = self
     }
 
     override func didReceiveMemoryWarning() {
@@ -93,17 +96,21 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     */
 
-    /*
-    // Override to support editing the table view.
+    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+        
+        let  managedObj : NSManagedObject = frc.object(at: indexPath) as! NSManagedObject
+        pc.delete(managedObj)
+        
+        do {
+            try pc.save()
+        }
+        catch {
+            print(error)
+            return
+        }
     }
-    */
+    
 
     /*
     // Override to support rearranging the table view.
@@ -120,14 +127,20 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     */
 
-    /*
-    // MARK: - Navigation
-
+    
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "edit" {
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPath(for: cell)
+            
+            let itemController : AddingViewController = segue.destination as! AddingViewController
+            let item : Entity = frc.object(at: indexPath!) as! Entity
+            
+            itemController.item = item
+        }
     }
-    */
-
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+    }
 }

@@ -8,7 +8,6 @@
 
 import UIKit
 import CoreData
-private let reuseIdentifier = "Cell"
 
 class AddingViewController: UIViewController , UINavigationControllerDelegate{
 
@@ -17,11 +16,32 @@ class AddingViewController: UIViewController , UINavigationControllerDelegate{
     @IBOutlet weak var phone: UITextField!
     @IBOutlet weak var gender: UISegmentedControl!
     
+    var item : Entity? = nil
+    
     var pc = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     override func viewDidLoad() {
         super.viewDidLoad()
 
         self.view.addGestureRecognizer(UITapGestureRecognizer(target: self.view, action: Selector("endEditing:")))
+        
+        if item == nil {
+            
+            self.navigationItem.title = "Записать"
+        }
+        else {
+            
+            self.navigationItem.title = item?.name
+            name.text = item?.name
+            city.text = item?.city
+            phone.text = item?.telephone
+            if  item?.gender == "Мужчина" {
+                gender.selectedSegmentIndex = 0
+            }
+            else {
+                gender.selectedSegmentIndex = 1
+            }
+            
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,26 +62,50 @@ class AddingViewController: UIViewController , UINavigationControllerDelegate{
     
     
     @IBAction func save(_ sender: Any) {
-        let entityDescription = NSEntityDescription.entity(forEntityName: "Entity", in: pc)
-        
-        let item = Entity(entity: entityDescription!, insertInto: pc)
-        item.name = name.text
-        item.city = city.text
-        item.telephone = phone.text
-        if gender.selectedSegmentIndex == 0 {
-            item.gender = "Мужчина"
+        if name.text != "" {
+            if item == nil {
+                let entityDescription = NSEntityDescription.entity(forEntityName: "Entity", in: pc)
+                
+                let item = Entity(entity: entityDescription!, insertInto: pc)
+                item.name = name.text
+                item.city = city.text
+                item.telephone = phone.text
+                if gender.selectedSegmentIndex == 0 {
+                    item.gender = "Мужчина"
+                }
+                else {
+                    item.gender = "Женщина"
+                }
+            }
+            else {
+                item?.name = name.text
+                item?.city = city.text
+                item?.telephone = phone.text
+                if gender.selectedSegmentIndex == 0 {
+                    item?.gender = "Мужчина"
+                }
+                else {
+                    item?.gender = "Женщина"
+                }
+            }
+            
+            do {
+                try pc.save()
+            }
+            catch {
+                print(error)
+                return
+            }
+            navigationController!.popViewController(animated: true)
         }
         else {
-            item.gender = "Женщина"
+            let alert = UIAlertController(title: title, message: "Добавьте запись", preferredStyle: .alert)
+            let alertaction =  UIAlertAction(title: "Добавить!", style: .destructive, handler: nil)
+            alert.addAction(alertaction)
+            present(alert, animated: true)
+            
         }
-        do {
-            try pc.save()
-        }
-        catch {
-            print(error)
-            return
-        }
-        navigationController!.popViewController(animated: true)
+        
     }
     
     @IBAction func dissmiss(_ sender: Any) {
