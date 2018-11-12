@@ -141,6 +141,41 @@ class TableViewController: UITableViewController, NSFetchedResultsControllerDele
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Entity")
+        let predicate = NSPredicate(format: "(name contains [cd] %@) || (city contains[cd] %@) || (telephone contains[cd] %@) || (gender contains[cd] %@)" , searchBar.text ?? "", searchBar.text ?? "",searchBar.text ?? "",searchBar.text ?? "")
+        frc.fetchRequest.predicate = predicate
+        searchBar.setShowsCancelButton(true, animated: true)
+        do  {
+           try frc.performFetch()
+        }
+        catch {
+            print(error)
+        }
+        tableView.reloadData()
         
+            
+    
+
+    }
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = nil
+        
+        searchBar.showsCancelButton = false
+        
+        searchBar.resignFirstResponder()
+        frc = getFRC()
+        frc.delegate = self
+        
+        do {
+            try frc.performFetch()
+            
+        }
+        catch {
+            
+            print(error)
+            return
+            
+        }
+        tableView.reloadData()
     }
 }
